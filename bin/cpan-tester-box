@@ -1,0 +1,37 @@
+#! /usr/bin/perl -w
+use strict;
+use v5.36.1;
+
+use CPAN::Tester::RecentUploads;
+use CPAN::Tester::Box;
+use YAML::XS qw< DumpFile LoadFile >;
+
+use Getopt::Long;
+my %option = (
+    interval => 60 * 60, # seconds
+    perl => $^X,
+    db   => 'cpan-tester-box.handled',
+);
+GetOptions(\%option => qw< perl|p=s interval|i=i >);
+
+my $db = { };
+if (-e $option{db}) {
+    eval { $db = LoadFile($option{db}); 1; }
+        or die "LoadFile($option{db}): $@";
+}
+my $recents = CPAN::Tester::RecentUploads->new(interval => '1d');
+my $box = CPAN::Tester::Box->new(
+    recent_uploads => $recents,
+    tester_perl    => $option{perl},
+    handled        => $db,
+    poll_interval  => $option{interval},
+);
+{
+    local $SIG{INT} = local $SIG{TERM} = sub { exit(42) };
+    $box->run();
+}
+
+END {
+    say "Saving database...";
+    DumpFile($option{db}, $box->handled);
+}
