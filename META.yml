@@ -1,0 +1,38 @@
+---
+abstract: 'A CPAN::Tester box based on L<CPAN::Reporter>.'
+author:
+  - 'Abe Timmerman <abeltje@cpan.og>'
+build_requires:
+  ExtUtils::MakeMaker: '0'
+  Test::Fatal: '0'
+  Test::More: '0.88'
+  Test::Warnings: '0'
+configure_requires:
+  ExtUtils::MakeMaker::CPANfile: '0.09'
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 7.70, CPAN::Meta::Converter version 2.150010'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: CPAN-Tester-Box
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  CPAN::Recent::Uploads: '0'
+  Capture::Tiny: '0'
+  Data::Printer: '0'
+  DateTime: '0'
+  Moo: '2'
+  Type::Tiny: '0'
+  URI: '0'
+  YAML::XS: '0'
+  namespace::autoclean: '0.16'
+  perl: '5.020000'
+resources:
+  bugtracker: https://github.com/abeltje/CPAN-Test-Box/issues
+  repository: https://github.com/abeltje/CPAN-Test-Box.git
+version: '0.01'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

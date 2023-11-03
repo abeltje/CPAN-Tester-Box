@@ -1,0 +1,68 @@
+{
+   "abstract" : "A CPAN::Tester box based on L<CPAN::Reporter>.",
+   "author" : [
+      "Abe Timmerman <abeltje@cpan.og>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "ExtUtils::MakeMaker version 7.70, CPAN::Meta::Converter version 2.150010",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : 2
+   },
+   "name" : "CPAN-Tester-Box",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker::CPANfile" : "0.09"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "CPAN::Recent::Uploads" : "0",
+            "Capture::Tiny" : "0",
+            "Data::Printer" : "0",
+            "DateTime" : "0",
+            "Moo" : "2",
+            "Type::Tiny" : "0",
+            "URI" : "0",
+            "YAML::XS" : "0",
+            "namespace::autoclean" : "0.16",
+            "perl" : "5.020000"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::Fatal" : "0",
+            "Test::More" : "0.88",
+            "Test::Warnings" : "0"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/abeltje/CPAN-Test-Box/issues"
+      },
+      "repository" : {
+         "type" : "git",
+         "url" : "https://github.com/abeltje/CPAN-Test-Box.git",
+         "web" : "https://github.com/abeltje/CPAN-Test-Box"
+      }
+   },
+   "version" : "0.01",
+   "x_serialization_backend" : "JSON::PP version 4.16"
+}

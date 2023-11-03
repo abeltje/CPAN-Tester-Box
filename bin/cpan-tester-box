@@ -1,18 +1,27 @@
 #! /usr/bin/perl -w
 use strict;
-use v5.36.1;
+use v5.20.0;
+use if $] <  5.036, experimental => 'signatures';
+use if $] >= 5.036, feature      => 'signatures';
 
 use CPAN::Tester::RecentUploads;
 use CPAN::Tester::Box;
+use File::Basename qw< basename >;
+use Pod::Usage;
 use YAML::XS qw< DumpFile LoadFile >;
 
 use Getopt::Long;
 my %option = (
-    interval => 60 * 60, # seconds
-    perl => $^X,
-    db   => 'cpan-tester-box.handled',
+    interval => 60 * 60,                     # seconds
+    perl     => $^X,
+    db       => basename($0) . '.db',
+    help     => sub {
+        pod2usage(exit_value => 0, verbose => 1);
+    },
 );
-GetOptions(\%option => qw< perl|p=s interval|i=i >);
+set_default_options(\%option, basename($0) . ".yml");
+
+GetOptions(\%option => qw< perl|p=s interval|i=i help|h >);
 
 my $db = { };
 if (-e $option{db}) {
@@ -32,6 +41,54 @@ my $box = CPAN::Tester::Box->new(
 }
 
 END {
-    say "Saving database...";
-    DumpFile($option{db}, $box->handled);
+    if (defined($box)) {
+        say "Saving database...";
+        DumpFile($option{db}, $box->handled);
+    }
 }
+
+sub set_default_options ($options, $filename) {
+    my $opt_from_file = { };
+    if (-e $filename) {
+        eval { $opt_from_file = LoadFile($filename); 1; }
+            or die "Cannot unyaml($filename): $@";
+    }
+    for my $key (keys %$opt_from_file) {
+        $options->{$key} = $opt_from_file->{$key};
+    }
+}
+
+=head1 NAME
+
+cpan-tester-box - A simple CPAN tester box
+
+=head1 OPTIONS
+
+    cpan-tester-box [options]
+
+  --interval|-i <seconds>
+  --perl| -p <path-to-tester-perl>
+
+=head1 DESCRIPTION
+
+    $ nohup cpan-tester-box &
+    $ tail -f nohup.out
+
+=head2 Config-file
+
+    cpan-tester-box.yml
+
+=head1 COPYRIGHT
+
+E<copy> MMXXIII - Abe Timmerman <abeltje@cpan.org>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+=cut

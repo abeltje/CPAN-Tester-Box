@@ -1,8 +1,38 @@
 package CPAN::Tester::RecentUploads;
 use Moo;
-use v5.36.1;
+use v5.20.0;
+use if $] <  5.036, experimental => 'signatures';
+use if $] >= 5.036, feature      => 'signatures';
+use Carp;
 
 our $VERSION = '0.01';
+
+use CPAN::Recent::Uploads::Retriever;
+use DateTime;
+use YAML::XS qw< Load >;
+
+=head1 NAME
+
+CPAN::Testers::RecentUploads - Wrapper around L<CPAN::Recent::Uploads::Retriever>.
+
+=head1 ATTRIBUTES
+
+=head2 mirror
+
+This is the URI for the mirror to use to determine recent uploads. This is an
+B<InstanceOf> either L<URI::http> or L<URI::https>, but strings are coerced into
+a L<URI> instance.
+
+I<Default>: B<http://www.cpan.org>
+
+=head2 interval
+
+This is one of: B<1h>, B<6h>, B<1d>, B<1W>, B<1M>, B<1Q> or B<1Y>. See
+L<CPAN::Recent::Uploads> for details.
+
+I<Default>: B<1W>
+
+=cut
 
 use URI;
 use Types::Standard qw< Enum InstanceOf >;
@@ -18,16 +48,21 @@ has interval => (
     default => '1W'
 );
 
-use CPAN::Recent::Uploads::Retriever;
-use DateTime;
-use YAML::XS qw< Load >;
-
-# implementation
 my $_ext_re = qr{ \. (?: tar\.gz | tar\.bz2 | tgz | zip ) }x;
 
-sub get_recent {
-    my $self = shift;
-    my ($interval) = @_;
+=head1 SYNOPSIS
+
+    my $recents = CPAN::Tester::RecentUploads->new(
+        mirror => 'https://www.cpan.org',
+    );
+
+=head1 DESCRIPTION
+
+=head2 $ru->get_recent($interval)
+
+=cut
+
+sub get_recent ($self, $interval) {
     $interval //= $self->interval;
 
     my $yaml = CPAN::Recent::Uploads::Retriever->retrieve(
@@ -35,7 +70,7 @@ sub get_recent {
         mirror => $self->mirror->as_string,
     );
     my $recent;
-    eval { $recent = Load($yaml); 1 } or die "Cannot unyaml: $!";
+    eval { $recent = Load($yaml); 1 } or confess("Cannot unyaml: $!");
 
     my $list = [ map {
         (my $path = $_->{path}) =~ s{^ id/ }{}x;
@@ -53,6 +88,7 @@ sub get_recent {
             $_->{path} =~ m{^ id/[A-Z]/[A-Z]{2}/ .+ $_ext_re $}x
         and $_->{type} eq 'new'
         and $_->{path} !~ m{ /perl-5\. }x
+        and $_->{path} !~ m{ /perl6 }xi
     } @{$recent->{recent}} ];
 
     return $list;
@@ -60,3 +96,18 @@ sub get_recent {
 
 use namespace::autoclean;
 1;
+
+=head1 COPYRIGHT
+
+E<copy> MMXXIII - Abe Timmerman <abeltje@cpan.org>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+=cut
