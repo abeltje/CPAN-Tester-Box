@@ -42,7 +42,7 @@ use CPAN::Tester::Box;
     no warnings 'redefine';
     local *CPAN::Tester::Box::handle_queue_item = sub ($self, $item) {
         my $rsleep = int(rand(2 * $self->poll_interval)) + 1;
-        diag("Overwrite: $item->{path} $item->{time} (sleeps $rsleep)");
+        say STDERR "# Overwrite: $item->{path} $item->{time} (sleeps $rsleep)";
         sleep($rsleep); # represents the `make test`
         $self->handled->{$item->{path}}++;
     };
@@ -53,15 +53,28 @@ use CPAN::Tester::Box;
     );
     isa_ok($box, 'CPAN::Tester::Box');
 
+    my $outbuff;
     eval {
+        local *STDERR; # ->run() writes to STDERR, now we capture
+        open(*STDERR, '>>', \$outbuff);
         local $SIG{ALRM} = sub { die "Force quit\n" };
         alarm(6 * $box->poll_interval);
+
+        diag("WARNING: This is a slow test (~20 seconds)");
         $box->run();
-        alarm(0);
+        fail("Stopped by alarm");
         1;
     } or do {
         is($@, "Force quit\n", "Stopped by alarm");
     };
+
+    is(
+        scalar(grep /^# Overwrite: /, split(/\n/, $outbuff)),
+        3,
+        "Found 3 distributions"
+    ) or diag("STDERR: ", $outbuff);
+    like($outbuff, qr{^# Last\(1W\):}m, "1 week recent");
+    like($outbuff, qr{^# Last\(6h\):}m, "6 hour recent");
 
     is_deeply(
         $box->handled,
