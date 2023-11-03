@@ -26,3 +26,25 @@ WriteMakefile(
         },
     },
 );
+
+package MY;
+
+sub test {
+    my $self = shift;
+    my $orig = $self->SUPER::test(@_);
+
+    $orig .= <<"EOM";
+
+XTEST_FILES = xt/*.t
+xtest ::
+EOM
+
+    my $varpfx = $^O eq 'MSWin32' ? '$$' : '\$$';
+    $orig .= "\t"
+           . qq{\$(FULLPERLRUN) "-e" "my ${varpfx}sw=q[-wl]; }
+           . qq{${varpfx}sw .= q[v] if \$(TEST_VERBOSE); }
+           . qq{system qq[prove ${varpfx}sw \$(XTEST_FILES)]"};
+
+    return $orig;
+}
+1;
