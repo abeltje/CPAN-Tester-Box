@@ -8,6 +8,7 @@ use if $] >= 5.036, feature      => 'signatures';
 use CPAN::Tester::RecentUploads;
 
 {
+    no warnings 'redefine';
     local *CPAN::Recent::Uploads::Retriever::retrieve = sub {
         my $class = shift;
         my (%args) = @_;

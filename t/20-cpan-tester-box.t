@@ -1,10 +1,10 @@
-#! perl -w
-use strict;
+#! perl -I. -w
+use t::Test::abeltje;
 use v5.20.0;
 use if $] <  5.036, experimental => 'signatures';
 use if $] >= 5.036, feature      => 'signatures';
+
 use Config;
-use Test::More;
 use Test::MockObject;
 
 plan skipall => "Need `alarm` and \$SIG{ALRM} for this test"
@@ -39,6 +39,7 @@ use CPAN::Tester::Box;
         [],
     );
 
+    no warnings 'redefine';
     local *CPAN::Tester::Box::handle_queue_item = sub ($self, $item) {
         my $rsleep = int(rand(2 * $self->poll_interval)) + 1;
         diag("Overwrite: $item->{path} $item->{time} (sleeps $rsleep)");
@@ -73,4 +74,4 @@ use CPAN::Tester::Box;
     ) or diag(explain($box->handled));
 }
 
-done_testing();
+abeltje_done_testing();
