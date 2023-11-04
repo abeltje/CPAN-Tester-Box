@@ -4,7 +4,7 @@ use v5.20.0;
 use if $] <  5.036, experimental => 'signatures';
 use if $] >= 5.036, feature      => 'signatures';
 
-our $VERSION = '0.01_00';
+our $VERSION = "0.01_01";
 
 use File::Spec::Functions qw< devnull >;
 use DateTime;

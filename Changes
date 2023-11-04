@@ -1,0 +1,39 @@
+0.01_01 2023-11-04T13:00:05+01:00 (67b6755 => Abe Timmerman)
+ - (Abe Timmerman, Sat, 4 Nov 2023 13:00:05 +0100) Autocommit for
+   distribution CPAN-Tester-Box 0.01_01 (test)
+
+0.00_00 2023-11-02T08:30:22+01:00 (6aecb2d => abeltje)
+ - (abeltje, Thu, 2 Nov 2023 08:30:22 +0100) First commit of very bare
+   software
+ -     This will need some fine-tuning and a lot of POD.
+ - (Abe Timmerman, Fri, 3 Nov 2023 21:15:42 +0100) It's starting to look
+   like a module
+ -     Add files for the distribution (Makefile.PL, MANIFEST.SKIP,
+ -     README.md, Changes etc)
+ -     Add t::Test::abeltje
+ -     Add tests for the *.pm
+ - (Abe Timmerman, Fri, 3 Nov 2023 21:32:46 +0100) Clean-up tests
+ -     Remove 'redefined' warning
+ -     t/20-cpan-tester-box.t: convert to t::Test::abeltje
+ - (Abe Timmerman, Fri, 3 Nov 2023 22:22:45 +0100) Capture test output and
+   test it.
+ -     All output from CPAN::Tester::Box goes to STDERR, we capture it
+   during
+ -     the test-run and examine it for some things we expect.
+ - (Abe Timmerman, Fri, 3 Nov 2023 22:40:29 +0100) Add 'xtest' target to
+   the Makefile
+ - (Abe Timmerman, Sat, 4 Nov 2023 09:56:39 +0100) Introduce 'verbose' to
+   the Box
+ -     Now one can determine the amount of output:
+ -	 0 => none
+ -	 1 => some administrative messages
+ -	 2 => also the output of CPAN::Shell->test()
+ -     Remove Capture::Tiny
+ - (Abe Timmerman, Sat, 4 Nov 2023 10:08:52 +0100) Exclude some programme
+   files
+ -     cpan-tester-box.db
+ -     cpan-tester-box.yml
+ - (Abe Timmerman, Sat, 4 Nov 2023 11:32:58 +0100) Add 'EXE_FILES' to
+   WriteMakefile
+ -     We want the script to be installed.
+ -     regen META.*

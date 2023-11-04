@@ -62,6 +62,6 @@
          "web" : "https://github.com/abeltje/CPAN-Test-Box"
       }
    },
-   "version" : "0.01_00",
+   "version" : "0.01_01",
    "x_serialization_backend" : "JSON::PP version 4.16"
 }
