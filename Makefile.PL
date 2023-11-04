@@ -12,6 +12,9 @@ WriteMakefile(
     LICENSE          => 'perl_5',
     MIN_PERL_VERSION => 5.20.0,
 
+    # Dependencies managed in cpanfile
+    EXE_FILES => [qw< bin/cpan-tester-box >],
+
     META_MERGE => {
         'meta-spec' => { version => 2 },
         'resources' => {

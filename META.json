@@ -1,5 +1,5 @@
 {
-   "abstract" : "A CPAN::Tester box based on L<CPAN::Reporter>.",
+   "abstract" : "A CPAN::Tester box based on L<CPAN>.",
    "author" : [
       "Abe Timmerman <abeltje@cpan.og>"
    ],
