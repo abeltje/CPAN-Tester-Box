@@ -33,7 +33,6 @@
       "runtime" : {
          "requires" : {
             "CPAN::Recent::Uploads" : "0",
-            "Capture::Tiny" : "0",
             "Data::Printer" : "0",
             "DateTime" : "0",
             "Moo" : "2",
@@ -52,7 +51,7 @@
          }
       }
    },
-   "release_status" : "stable",
+   "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/abeltje/CPAN-Test-Box/issues"
@@ -63,6 +62,6 @@
          "web" : "https://github.com/abeltje/CPAN-Test-Box"
       }
    },
-   "version" : "0.01",
+   "version" : "0.01_00",
    "x_serialization_backend" : "JSON::PP version 4.16"
 }

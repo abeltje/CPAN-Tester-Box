@@ -22,7 +22,6 @@ no_index:
     - inc
 requires:
   CPAN::Recent::Uploads: '0'
-  Capture::Tiny: '0'
   Data::Printer: '0'
   DateTime: '0'
   Moo: '2'
@@ -34,5 +33,5 @@ requires:
 resources:
   bugtracker: https://github.com/abeltje/CPAN-Test-Box/issues
   repository: https://github.com/abeltje/CPAN-Test-Box.git
-version: '0.01'
+version: 0.01_00
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

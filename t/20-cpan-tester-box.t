@@ -43,13 +43,17 @@ use CPAN::Tester::Box;
     local *CPAN::Tester::Box::handle_queue_item = sub ($self, $item) {
         my $rsleep = int(rand(2 * $self->poll_interval)) + 1;
         say STDERR "# Overwrite: $item->{path} $item->{time} (sleeps $rsleep)";
+
         sleep($rsleep); # represents the `make test`
+
+        say STDERR "Random output for command, verbose > 1" if $self->verbose > 1;
         $self->handled->{$item->{path}}++;
     };
 
     my $box = CPAN::Tester::Box->new(
         recent_uploads => $recent_uploads,
         poll_interval  => 3,
+        verbose        => 2,
     );
     isa_ok($box, 'CPAN::Tester::Box');
 
@@ -69,12 +73,17 @@ use CPAN::Tester::Box;
     };
 
     is(
-        scalar(grep /^# Overwrite: /, split(/\n/, $outbuff)),
+        scalar(grep m/^# Overwrite: / => split(m/\n/, $outbuff)),
         3,
         "Found 3 distributions"
     ) or diag("STDERR: ", $outbuff);
-    like($outbuff, qr{^# Last\(1W\):}m, "1 week recent");
-    like($outbuff, qr{^# Last\(6h\):}m, "6 hour recent");
+    like($outbuff, qr/^# Last\(1W\):/m, "1 week recent");
+    like($outbuff, qr/^# Last\(6h\):/m, "6 hour recent");
+    is(
+        scalar(grep m/^Random output / => split(m/\n/, $outbuff)),
+        3,
+        "verbose > 1"
+    ) or diag("STDERR: ", $outbuff);
 
     is_deeply(
         $box->handled,

@@ -4,15 +4,14 @@ use v5.20.0;
 use if $] <  5.036, experimental => 'signatures';
 use if $] >= 5.036, feature      => 'signatures';
 
-our $VERSION = '0.01';
+our $VERSION = '0.01_00';
 
-use Capture::Tiny qw< tee >;
+use File::Spec::Functions qw< devnull >;
 use DateTime;
-use DDP;
 
 =head1 NAME
 
-CPAN::Tester::Box - A CPAN::Tester box based on L<CPAN::Reporter>.
+CPAN::Tester::Box - A CPAN::Tester box based on L<CPAN>.
 
 =head1 SYNOPSIS
 
@@ -26,6 +25,7 @@ CPAN::Tester::Box - A CPAN::Tester box based on L<CPAN::Reporter>.
         recent_uploads => $recents,
         poll_interval  => $option{interval},
         tester_perl    => $option{perl},
+        verbose        => 1,
     );
 
     $box->run();
@@ -36,17 +36,25 @@ CPAN::Tester::Box - A CPAN::Tester box based on L<CPAN::Reporter>.
 
 I<InstanceOf> L<CPAN::Tester::RecentUploads>
 
+I<Required>
+
 =head2 poll_interval
 
 Interval between polls to the mirror for new files (in seconds).
 
-I<Defailt>: B<3600> (1 hour)
+I<Default>: B<3600> (1 hour)
 
 =head2 tester_perl
 
 The perl-binary to use for testing.
 
 I<Default>: B<$^X>
+
+=head2 verbose
+
+Determines the amount of output, B<0 | 1 | 2>.
+
+I<Default>: B<1>
 
 =head2 handled
 
@@ -79,6 +87,11 @@ has tester_perl => (
     is      => 'ro',
     isa     => Str,
     default => sub {$^X},
+);
+has verbose => (
+    is      => 'ro',
+    isa     => Int,
+    default => 1,
 );
 has last_poll => (
     is  => 'rw',
@@ -116,8 +129,10 @@ sub get_recent_queue ($self, $interval) {
     $self->last_poll(time());
 
     my $all_recent = $self->recent_uploads->get_recent($interval) // [ ];
-    say STDERR "# Last($interval): " . np($all_recent->[-1], colored => 1)
-        if @$all_recent;
+    if ($self->verbose and @$all_recent) {
+        my $last = $all_recent->[-1];
+        say STDERR "# Last($interval): $last->{path} $last->{time}"
+    }
 
     my $recent = [ grep {
         ! exists($self->handled->{$_->{path}})
@@ -134,7 +149,7 @@ sub get_recent_queue ($self, $interval) {
 sub handle_queue_item ($self, $item) {
     return if !$item;
     return if $self->handled->{ $item->{path} };
-    say STDERR "# $item->{path} $item->{time}";
+    say STDERR "# $item->{path} $item->{time}" if $self->verbose;
 
     my @cmd = (
         $self->tester_perl, '-MCPAN', '-e',
@@ -144,15 +159,18 @@ sub handle_queue_item ($self, $item) {
         "}
     );
     my $cmdln = join(" ", @cmd);
-    say STDERR "# $cmdln";
-    my ($stdout, $stderr, @result) = tee {
+    say STDERR "# $cmdln" if $self->verbose;
+
+    {
         local $ENV{AUTOMATED_TESTING} = 1;
         local $ENV{PERL_MM_USE_DEFAULT} = 1;
-        system($cmdln);
-    };
-#    say STDERR "# test-out: stdout";
-#    say STDERR "# test-err: stderr";
-#    say STDERR "# test-result: @result";
+        if ($self->verbose > 1) {
+            system($cmdln);
+        }
+        else {
+            system("$cmdln 2>&1 >" . devnull());
+        }
+    }
 
     $self->handled->{ $item->{path} }++;
     return 1;
@@ -197,7 +215,7 @@ sub wait_for_new ($self, $queue) {
     say STDERR sprintf(
         "# wait_for_new: sleep(%u) of %u %s",
         $interval, $self->poll_interval, $now->strftime("%a %F %T %z")
-    );
+    ) if $self->verbose;
 
     sleep($interval) if $interval > 0;
     return $self->top_up_queue($queue);

@@ -15,13 +15,23 @@ my %option = (
     interval => 60 * 60,                     # seconds
     perl     => $^X,
     db       => basename($0) . '.db',
+    verbose  => 1,
     help     => sub {
         pod2usage(exit_value => 0, verbose => 1);
     },
 );
 set_default_options(\%option, basename($0) . ".yml");
 
-GetOptions(\%option => qw< perl|p=s interval|i=i help|h >);
+GetOptions(
+    \%option => qw<
+        perl|p=s
+        interval|i=i
+        verbose|v:1
+        quiet|q
+        help|h
+    >
+);
+$option{verbose} = 0 if $option{quiet};
 
 my $db = { };
 if (-e $option{db}) {
@@ -34,6 +44,7 @@ my $box = CPAN::Tester::Box->new(
     tester_perl    => $option{perl},
     handled        => $db,
     poll_interval  => $option{interval},
+    verbose        => $option{verbose},
 );
 {
     local $SIG{INT} = local $SIG{TERM} = sub { exit(42) };
@@ -62,12 +73,24 @@ sub set_default_options ($options, $filename) {
 
 cpan-tester-box - A simple CPAN tester box
 
-=head1 OPTIONS
+=head2 SYNOPSIS
 
     cpan-tester-box [options]
 
-  --interval|-i <seconds>
-  --perl| -p <path-to-tester-perl>
+or
+
+    nohup cpan-tester-box [options] &
+
+=head1 OPTIONS
+
+  cpan-tester-box [options]
+
+  --interval|-i <seconds>           default 3600 (1 hour)
+  --perl| -p <path-to-tester-perl>  default $^X  (current perl)
+  --verbose|-v <0 | 1 | 2>          default 1 (lone -v, sets to 1)
+  --quiet|-q                        force verbose to 0
+
+Defaults will be changed from F<cpan-tester-box.yml>.
 
 =head1 DESCRIPTION
 

@@ -1,22 +1,25 @@
 # NAME
 
-CPAN::Tester::Box - A CPAN::Tester box based on [CPAN::Reporter](https://metacpan.org/pod/CPAN%3A%3AReporter).
+CPAN::Tester::Box - A CPAN::Tester box based on [CPAN](https://metacpan.org/pod/CPAN).
 
 # SYNOPSIS
 
-    use CPAN::Tester::RecentUploads;
-    use CPAN::Tester::Box;
+```perl
+use CPAN::Tester::RecentUploads;
+use CPAN::Tester::Box;
 
-    my $recents = CPAN::Tester::RecentUploads->new(
-        mirror => 'http://www.cpan.org',
-    );
-    my $box = CPAN::Tester::Box->new(
-        recent_uploads => $recents,
-        poll_interval  => $option{interval},
-        tester_perl    => $option{perl},
-    );
+my $recents = CPAN::Tester::RecentUploads->new(
+    mirror => 'http://www.cpan.org',
+);
+my $box = CPAN::Tester::Box->new(
+    recent_uploads => $recents,
+    poll_interval  => $option{interval},
+    tester_perl    => $option{perl},
+    verbose        => 1,
+);
 
-    $box->run();
+$box->run();
+```
 
 # ATTRIBUTES
 
@@ -24,17 +27,25 @@ CPAN::Tester::Box - A CPAN::Tester box based on [CPAN::Reporter](https://metacpa
 
 _InstanceOf_ [CPAN::Tester::RecentUploads](https://metacpan.org/pod/CPAN%3A%3ATester%3A%3ARecentUploads)
 
+_Required_
+
 ## poll\_interval
 
 Interval between polls to the mirror for new files (in seconds).
 
-_Defailt_: **3600** (1 hour)
+_Default_: **3600** (1 hour)
 
 ## tester\_perl
 
 The perl-binary to use for testing.
 
 _Default_: **$^X**
+
+## verbose
+
+Determines the amount of output, **0 | 1 | 2**.
+
+_Default_: **1**
 
 ## handled
 
