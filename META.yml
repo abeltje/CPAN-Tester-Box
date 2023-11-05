@@ -33,5 +33,5 @@ requires:
 resources:
   bugtracker: https://github.com/abeltje/CPAN-Test-Box/issues
   repository: https://github.com/abeltje/CPAN-Test-Box.git
-version: 0.01_02
+version: 0.01_03
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'
