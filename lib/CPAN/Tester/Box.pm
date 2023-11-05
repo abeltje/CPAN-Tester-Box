@@ -164,11 +164,21 @@ sub handle_queue_item ($self, $item) {
     {
         local $ENV{AUTOMATED_TESTING} = 1;
         local $ENV{PERL_MM_USE_DEFAULT} = 1;
-        if ($self->verbose > 1) {
-            system($cmdln);
+        if (open(my $td, '-|', "$cmdln 2>&1")) {
+            while (my $line = <$td>) {
+                if ($self->verbose > 1) {
+                    print STDERR $line;
+                }
+                elsif ($self->verbose) {
+                    print STDERR "# $line" if m{^CPAN::Reporter:};
+                }
+            }
+            close($td) or say STDERR "# Error on close-pipe: $!";
         }
         else {
-            system("$cmdln 2>&1 >" . devnull());
+            say STDERR "# Couldn't open-pipe: $! ($?)";
+            my $redir = $self->verbose ? '1>&2' : '2>&1 >' . devnull;
+            system("$cmdln $redir");
         }
     }
 
