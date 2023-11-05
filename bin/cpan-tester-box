@@ -16,6 +16,7 @@ my %option = (
     perl     => $^X,
     db       => basename($0) . '.db',
     verbose  => 1,
+    install  => 0,
     help     => sub {
         pod2usage(exit_value => 0, verbose => 1);
     },
@@ -28,6 +29,7 @@ GetOptions(
         interval|i=i
         verbose|v:1
         quiet|q
+        install|install-tested|install_tested!
         help|h
     >
 );
@@ -44,6 +46,7 @@ my $box = CPAN::Tester::Box->new(
     tester_perl    => $option{perl},
     handled        => $db,
     poll_interval  => $option{interval},
+    install_tested => $option{install},
     verbose        => $option{verbose},
 );
 {

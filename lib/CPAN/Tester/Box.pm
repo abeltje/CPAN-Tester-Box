@@ -56,6 +56,12 @@ Determines the amount of output, B<0 | 1 | 2>.
 
 I<Default>: B<1>
 
+=head2 install_tested
+
+Call C<< CPAN::Shell->install_tested() >> at the end.
+
+I<Default>: B<0>
+
 =head2 handled
 
 Administrative HashRef that keeps track of distributions handled.  This can be
@@ -67,7 +73,7 @@ Administrative Int that keeps track of the last time we polled the mirror.
 
 =cut
 
-use Types::Standard qw< HashRef InstanceOf Int Str >;
+use Types::Standard qw< Bool HashRef InstanceOf Int Str >;
 has recent_uploads => (
     is       => 'ro',
     isa      => InstanceOf ['CPAN::Tester::RecentUploads'],
@@ -93,6 +99,11 @@ has verbose => (
     isa     => Int,
     default => 1,
 );
+has install_tested => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
 has last_poll => (
     is  => 'rw',
     isa => Int,
@@ -103,14 +114,15 @@ has last_poll => (
 This is a very simple CPAN::Tester box. It polls the mirror for new files every
 interval (3600 secs by default) and will call C<< CPAN::Shell->test('$tarball')
 >> via C<system()>. Whenever the queue of new files is empty, it will C<sleep()>
-for the rest of the polling interval.
+for the remainder of the polling interval.
 
 By calling C<< CPAN::Shell->test() >>, we assume that you have configured the
 CPAN module to create and send test reports (see L<CPAN::Reporter>).
 
 Advice: Run this programme as a separate user on the system, with its own CPAN
-configuration. If you choose to install dependencies, use the C<local::lib>
-model (or set C<< PERL_MM_OPT=INST_BASE=/home/<user>/tester >>)
+configuration. If you choose to install dependencies, use the L<local::lib>
+model (or set C<< PERL_MM_OPT=INST_BASE=/home/<user>/perl5lib >> and C<<
+PERL_MB_OPT=--install_base /home/<user>/perl5lib >> yourself).
 
 B<WARNING: By running this programme one agrees to run random code on ones
 machine. This can be dangerous for that machine! Make sure the user running it,
@@ -140,6 +152,32 @@ sub get_recent_queue ($self, $interval) {
     return $recent;
 }
 
+=head2 $self->_test_command($item)
+
+This returns an ArrayRef with the elements of the command to run.
+
+mostly to improve testability...
+
+=cut
+
+sub _test_command ($self, $item) {
+    my $install_tested = $self->install_tested
+        ? 'CPAN::Shell->install_tested();'
+        : "";
+    my @cmd = (
+        sprintf('"%s"', $self->tester_perl),
+        '"-MCPAN"',
+        '"-e"',
+        qq/"
+            CPAN::HandleConfig->require_myconfig_or_config;
+            CPAN::Shell->o(conf => 'test_report', 1);
+            CPAN::Shell->test('$item->{path}');
+            $install_tested
+        "/
+    );
+    return \@cmd;
+}
+
 =head2 $box->handle_queue_item($item)
 
     $self->tester_per -MCPAN -e "CPAN::Shell->test('$item->{path}')"
@@ -151,14 +189,8 @@ sub handle_queue_item ($self, $item) {
     return if $self->handled->{ $item->{path} };
     say STDERR "# $item->{path} $item->{time}" if $self->verbose;
 
-    my @cmd = (
-        $self->tester_perl, '-MCPAN', '-e',
-        qq{"CPAN::HandleConfig->require_myconfig_or_config;
-            CPAN::Shell->o(conf => 'test_report', 1);
-            CPAN::Shell->test('$item->{path}');
-        "}
-    );
-    my $cmdln = join(" ", @cmd);
+    my $cmd = $self->_test_command($item);
+    my $cmdln = join(" ", @$cmd);
     say STDERR "# $cmdln" if $self->verbose;
 
     {
@@ -170,7 +202,7 @@ sub handle_queue_item ($self, $item) {
                     print STDERR $line;
                 }
                 elsif ($self->verbose) {
-                    print STDERR "# $line" if m{^CPAN::Reporter:};
+                    print STDERR "# $line" if $line =~ m{^CPAN::Reporter:};
                 }
             }
             close($td) or say STDERR "# Error on close-pipe: $!";

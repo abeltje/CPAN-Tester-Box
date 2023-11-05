@@ -36,7 +36,7 @@ abeltje_done_testing();
 
 sub run_tests ($box) {
     no warnings 'redefine';
-    local *CPAN::Tester::Box::handle_queue_item = \&local_handle_queue_item;
+    local *CPAN::Tester::Box::_test_command = \&local_test_command;
 
     my $outbuff;
     eval {
@@ -94,27 +94,20 @@ sub run_tests ($box) {
     note($outbuff);
 }
 
-sub local_handle_queue_item ($self, $item) {
-    my $rsleep = int(rand(2 * $self->poll_interval)) + 1;
+sub local_test_command ($self, $item) {
+    my $rsleep = int(rand(2 * $self->poll_interval));
     say STDERR "# Overwrite: $item->{path} $item->{time} (sleeps $rsleep)";
-
-    my $cmdln = qq[$^X \\
-        "-E" "say STDERR qq<sleep: $rsleep>; sleep($rsleep);
-              say STDERR qq<Random output from make test>;
-              say STDERR qq<CPAN::Reporter: send report>" \\
-    ];
-    open(my $td, '-|', "$cmdln 2>&1");
-    while (my $line = <$td>) {
-        if ($self->verbose > 1) {
-            print STDERR $line;
-        }
-        elsif ($self->verbose) {
-            print STDERR "# $line" if $line =~ m{^CPAN::Reporter:};
-        }
-    }
-    close($td) or say STDERR "# ClosePipe: $! ($?)";
-
-    $self->handled->{$item->{path}}++;
+    my @cmd = (
+        qq/"$^X"/,
+        qq/"-E"/,
+        qq/"
+            say STDERR qq<sleep: $rsleep>;
+            sleep($rsleep);
+            say STDERR qq<Random output from make test>;
+            say STDERR qq<CPAN::Reporter: send report>;
+        "/
+    );
+    return \@cmd;
 }
 
 sub new_recent_uploads {
