@@ -1,6 +1,20 @@
-0.01_01 2023-11-04T13:00:05+01:00 (67b6755 => Abe Timmerman)
+0.01_02 2023-11-05T14:17:12+01:00 (a05aaf6 => Abe Timmerman)
+ - (Abe Timmerman, Sun, 5 Nov 2023 14:17:12 +0100) Autocommit for
+   distribution CPAN-Tester-Box 0.01_02 (test)
+
+0.01_01 2023-11-04T13:00:05+01:00 (7cf562b => Abe Timmerman)
  - (Abe Timmerman, Sat, 4 Nov 2023 13:00:05 +0100) Autocommit for
    distribution CPAN-Tester-Box 0.01_01 (test)
+ - (Abe Timmerman, Sun, 5 Nov 2023 14:12:48 +0100) Use pipe-open to read
+   from the ->test() command
+ -     In order to make verbose=1 give some information about the reports,
+   we
+ -     now use a pipe-open to the command so we can evaluate it on the fly.
+ -     Some module have so many dependencies that it takes a fair while
+   before
+ -     one can print captured output, we want some indication of progress
+   so we
+ -     need to process output on the fly.
 
 0.00_00 2023-11-02T08:30:22+01:00 (6aecb2d => abeltje)
  - (abeltje, Thu, 2 Nov 2023 08:30:22 +0100) First commit of very bare
