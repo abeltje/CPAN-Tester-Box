@@ -53,6 +53,26 @@ Call `CPAN::Shell->install_tested()` at the end.
 
 _Default_: **0**
 
+## o\_conf
+
+A HashRef of CPAN configuration options to set for testing.
+
+_Default_: **{ test\_report: 1 }**
+
+## ignore
+
+An ArrayRef of regex-patterns to test against the path:
+`A/AU/AUTHORNAME/Dist-Thing-42.01.tgz`
+
+_Default_: **\[ \]** (no ignore)
+
+## skip\_initial
+
+We start by collecting the recent uploads from the last week, if one wants to
+skip these uploads, pass `skip_initial => 1` to the constructor.
+
+_Default_: **0**
+
 ## handled
 
 Administrative HashRef that keeps track of distributions handled.  This can be
