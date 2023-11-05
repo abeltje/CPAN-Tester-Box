@@ -1,6 +1,37 @@
-0.01_03 2023-11-05T15:47:42+01:00 (d42e7d7 => Abe Timmerman)
+0.01_04 2023-11-05T22:36:17+01:00 (62e7b2b => Abe Timmerman)
+ - (Abe Timmerman, Sun, 5 Nov 2023 22:36:17 +0100) Autocommit for
+   distribution CPAN-Tester-Box 0.01_04 (same)
+
+0.01_03 2023-11-05T15:47:42+01:00 (020a0a1 => Abe Timmerman)
  - (Abe Timmerman, Sun, 5 Nov 2023 15:47:42 +0100) Autocommit for
    distribution CPAN-Tester-Box 0.01_03 (test)
+ - (Abe Timmerman, Sun, 5 Nov 2023 16:21:12 +0100) Regenerate README.md
+ - (Abe Timmerman, Sun, 5 Nov 2023 18:35:38 +0100) Add the creation of a
+   pid-file
+ -     Easier to kill the process if you have the PID.
+ -     We will also remove it on exit.
+ - (Abe Timmerman, Sun, 5 Nov 2023 18:59:27 +0100) Add 'o_conf' a hashref
+   with CPAN options
+ -     One can now pass a hashref of CPAN options that need to be set
+   before
+ -     calling CPAN::Shell->test().
+ -     These options can be set from the 'cpan-tester-box.yml' or from the
+ -     command-line:
+ -	 -o_conf test_report=1 --o_conf make_install_make_command=make
+ - (Abe Timmerman, Sun, 5 Nov 2023 22:08:04 +0100) Add 'ignore' and
+   'skip_initial'
+ -     ignore: an arrayref of (regex) patterns that are each tested against
+ -	 the path (A/AU/AUTHORNAME/Dist-Thing-42.01.tar.gz). The item will
+   not
+ -	 be tested if 1 or more patterns match.
+ -	 This option can be set via 'cpan-tester-box.yml' or via command
+   line:
+ -	   -ignore '\bAUTHORNAME\b' --ignore 'Dist-Thing-(?=\d)'
+ -     skip_initial: do not handle the initial items (1Week) but mark as
+ -	 handled.
+ -	 This option can be set via 'cpan-tester-box.yml' or via command
+   line:
+ -	   -skipinitial or use cpan-tester-box.yml
 
 0.01_02 2023-11-05T14:17:12+01:00 (6e4f149 => Abe Timmerman)
  - (Abe Timmerman, Sun, 5 Nov 2023 14:17:12 +0100) Autocommit for
