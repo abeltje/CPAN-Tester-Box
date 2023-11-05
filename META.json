@@ -46,6 +46,7 @@
       "test" : {
          "requires" : {
             "Test::Fatal" : "0",
+            "Test::MockObject" : "0",
             "Test::More" : "0.88",
             "Test::Warnings" : "0"
          }

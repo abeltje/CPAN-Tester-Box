@@ -12,14 +12,16 @@ use YAML::XS qw< DumpFile LoadFile >;
 
 use Getopt::Long;
 my %option = (
-    interval => 60 * 60,                     # seconds
-    perl     => $^X,
-    db       => basename($0) . '.db',
-    verbose  => 1,
-    install  => 0,
-    o_conf => { test_report => 1 },
-    help     => sub {
-        pod2usage(exit_value => 0, verbose => 1);
+    interval    => 60 * 60,                # seconds
+    perl        => $^X,
+    db          => basename($0) . '.db',
+    verbose     => 1,
+    install     => 0,
+    o_conf      => { test_report                     => 1 },
+    ignore      => [],
+    skipinitial => 0,
+    help        => sub {
+        pod2usage(exit_value => 0, verbose    => 1);
     },
 );
 set_default_options(\%option, basename($0) . ".yml");
@@ -32,6 +34,8 @@ GetOptions(
         quiet|q
         install|install-tested|install_tested!
         o_conf=s%
+        ignore=s@
+        skipinitial
         help|h
     >
 );
@@ -54,6 +58,8 @@ my $box = CPAN::Tester::Box->new(
     install_tested => $option{install},
     verbose        => $option{verbose},
     o_conf         => $option{o_conf},
+    ignore         => $option{ignore},
+    skip_initial   => $option{skipinitial},
 );
 {
     local $SIG{INT} = local $SIG{TERM} = sub { exit(42) };
@@ -99,6 +105,8 @@ or
   --perl| -p <path-to-tester-perl>  default $^X  (current perl)
   --verbose|-v <0 | 1 | 2>          default 1 (lone -v, sets to 1)
   --quiet|-q                        force verbose to 0
+
+  --ignore <pattern>..              a pattern to ignore (repeatable)
 
 Defaults will be changed from F<cpan-tester-box.yml>.
 

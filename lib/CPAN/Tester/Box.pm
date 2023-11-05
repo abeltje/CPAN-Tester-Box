@@ -68,6 +68,20 @@ A HashRef of CPAN configuration options to set for testing.
 
 I<Default>: B<{ test_report: 1 }>
 
+=head2 ignore
+
+An ArrayRef of regex-patterns to test against the path:
+C<A/AU/AUTHORNAME/Dist-Thing-42.01.tgz>
+
+I<Default>: B<[ ]> (no ignore)
+
+=head2 skip_initial
+
+We start by collecting the recent uploads from the last week, if one wants to
+skip these uploads, pass C<< skip_initial => 1 >> to the constructor.
+
+I<Default>: B<0>
+
 =head2 handled
 
 Administrative HashRef that keeps track of distributions handled.  This can be
@@ -79,7 +93,7 @@ Administrative Int that keeps track of the last time we polled the mirror.
 
 =cut
 
-use Types::Standard qw< Bool HashRef InstanceOf Int Str >;
+use Types::Standard qw< ArrayRef Bool HashRef InstanceOf Int Str >;
 has recent_uploads => (
     is       => 'ro',
     isa      => InstanceOf ['CPAN::Tester::RecentUploads'],
@@ -114,6 +128,16 @@ has o_conf => (
     is      => 'ro',
     isa     => HashRef,
     default => sub { { test_report => 1 } },
+);
+has ignore => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
+has skip_initial => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
 );
 has last_poll => (
     is  => 'rw',
@@ -163,6 +187,17 @@ sub get_recent_queue ($self, $interval) {
     return $recent;
 }
 
+=head2 $box->wants_ignore($item)
+
+=cut
+
+sub wants_ignore ($self, $item) {
+    my @ignore = grep {
+        $item->{path} =~ m{$_}
+    } @{ $self->ignore };
+    return @ignore ? [ @ignore ] : ();
+}
+
 =head2 $self->_test_command($item)
 
 This returns an ArrayRef with the elements of the command to run.
@@ -204,6 +239,12 @@ sub _test_command ($self, $item) {
 sub handle_queue_item ($self, $item) {
     return if !$item;
     return if $self->handled->{ $item->{path} };
+    if (my $sp = $self->wants_ignore($item)) {
+        say STDERR "# IGNORE: $item->path $item->{time}" if $self->verbose;
+        say STDERR "# IPAT: @$sp" if $self->verbose;
+        $self->handled->{ $item->{path} }++;
+        return 1;
+    }
     say STDERR "# $item->{path} $item->{time}" if $self->verbose;
 
     my $cmd = $self->_test_command($item);
@@ -288,6 +329,13 @@ Fetch recent items (1W) and endlessly repeat I<handle-queue>, I<wait-for-new>.
 
 sub run ($self) {
     my $queue = $self->get_recent_queue('1W');
+    if ($self->skip_initial) {
+        while (@$queue) {
+            my $item = shift(@$queue);
+            say STDERR "# SKIP $item->{path} $item->{time}" if $self->verbose;
+            $self->handled->{ $item->{path} }++;
+        }
+    }
     while (1) {
         $self->handle_queue($queue);
         $self->wait_for_new($queue);
