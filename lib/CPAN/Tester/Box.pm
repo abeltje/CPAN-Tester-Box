@@ -62,6 +62,12 @@ Call C<< CPAN::Shell->install_tested() >> at the end.
 
 I<Default>: B<0>
 
+=head2 o_conf
+
+A HashRef of CPAN configuration options to set for testing.
+
+I<Default>: B<{ test_report: 1 }>
+
 =head2 handled
 
 Administrative HashRef that keeps track of distributions handled.  This can be
@@ -103,6 +109,11 @@ has install_tested => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
+);
+has o_conf => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub { { test_report => 1 } },
 );
 has last_poll => (
     is  => 'rw',
@@ -164,13 +175,19 @@ sub _test_command ($self, $item) {
     my $install_tested = $self->install_tested
         ? 'CPAN::Shell->install_tested();'
         : "";
+
+    my @o_conf = map {
+        "CPAN::Shell->o(conf => '$_', '@{[ $self->o_conf->{$_} ]}');"
+    } sort keys %{ $self->o_conf };
+
+    my $indent = " " x 12;
     my @cmd = (
         sprintf('"%s"', $self->tester_perl),
         '"-MCPAN"',
         '"-e"',
         qq/"
             CPAN::HandleConfig->require_myconfig_or_config;
-            CPAN::Shell->o(conf => 'test_report', 1);
+            @{[ join("\n$indent", @o_conf) ]}
             CPAN::Shell->test('$item->{path}');
             $install_tested
         "/

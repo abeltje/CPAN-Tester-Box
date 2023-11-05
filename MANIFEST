@@ -11,6 +11,7 @@ META.yml
 README.md
 t/10-cpan-tester-recentuploads.t
 t/20-cpan-tester-box.t
+t/30-test-command.t
 t/Test/abeltje.pm not in manifest
 xt/00-manifest.t not in manifest
 xt/01-compile.t not in manifest

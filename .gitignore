@@ -4,6 +4,7 @@ pm_to_blib
 Makefile
 *.bak
 MYMETA.*
+cover_db/
 
 cpan-tester-box.db
 cpan-tester-box.yml

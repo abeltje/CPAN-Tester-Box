@@ -17,6 +17,7 @@ my %option = (
     db       => basename($0) . '.db',
     verbose  => 1,
     install  => 0,
+    o_conf => { test_report => 1 },
     help     => sub {
         pod2usage(exit_value => 0, verbose => 1);
     },
@@ -30,6 +31,7 @@ GetOptions(
         verbose|v:1
         quiet|q
         install|install-tested|install_tested!
+        o_conf=s%
         help|h
     >
 );
@@ -51,6 +53,7 @@ my $box = CPAN::Tester::Box->new(
     poll_interval  => $option{interval},
     install_tested => $option{install},
     verbose        => $option{verbose},
+    o_conf         => $option{o_conf},
 );
 {
     local $SIG{INT} = local $SIG{TERM} = sub { exit(42) };
