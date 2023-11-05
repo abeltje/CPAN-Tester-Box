@@ -79,3 +79,4 @@
 
 cpan-tester-box\.db
 cpan-tester-box\.yml
+cpan-tester-box\.pid

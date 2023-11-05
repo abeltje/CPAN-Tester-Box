@@ -35,6 +35,9 @@ GetOptions(
 );
 $option{verbose} = 0 if $option{quiet};
 
+my $pidfile = basename($0) . ".pid";
+if (open(my $pf, '>', $pidfile)) { print {$pf} $$; close($pf) }
+
 my $db = { };
 if (-e $option{db}) {
     eval { $db = LoadFile($option{db}); 1; }
@@ -59,6 +62,7 @@ END {
         say "Saving database...";
         DumpFile($option{db}, $box->handled);
     }
+    unlink $pidfile if -e $pidfile;
 }
 
 sub set_default_options ($options, $filename) {
